@@ -42,11 +42,11 @@ markdown_extensions:
 extra:
   social:
     - type: "github"
-      link: "https://github.com/seandstewart/website"
+      link: "https://github.com/rensdimmendaal/website"
     - type: "twitter"
-      link: "https://twitter.com/MrSeanStewart"
+      link: "https://twitter.com/R_Dimm"
     - type: "linkedin"
-      link: "https://linkedin.com/in/seandstewart"
+      link: "https://linkedin.com/in/rensdimmendaal"
   manifest: "static/favicon/site.webmanifest"
 extra_css:
   - "stylesheets/extra.css"
