@@ -1,0 +1,54 @@
+site_name: Rens Wiki
+site_author: Rens Dimmendaal
+copyright: "Copyright &copy; 2020 - 2021 Rens Dimmendaal"
+site_url: https://rensdimmendaal.com
+repo_url: https://github.com/rensdimmendaal/website
+repo_name: rensdimmendaal/website
+theme:
+  name: "material"
+  favicon: "static/favicon/favicon.ico"
+  logo:
+    icon: "home"
+  palette:
+    primary: "white"
+    accent: "indigo"
+  font:
+    text: "Fira Sans"
+    code: "Fira Code"
+markdown_extensions:
+  - toc:
+      permalink: "#"
+  - smarty
+  - admonition
+  - footnotes
+  - codehilite
+  - pymdownx.arithmatex
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:pymdownx.emoji.to_svg
+  - pymdownx.inlinehilite
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+  - fontawesome_markdown
+extra:
+  social:
+    - type: "github"
+      link: "https://github.com/seandstewart/website"
+    - type: "twitter"
+      link: "https://twitter.com/MrSeanStewart"
+    - type: "linkedin"
+      link: "https://linkedin.com/in/seandstewart"
+  manifest: "static/favicon/site.webmanifest"
+extra_css:
+  - "stylesheets/extra.css"
+extra_javascript:
+  - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'
