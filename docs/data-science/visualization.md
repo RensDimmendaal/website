@@ -23,4 +23,3 @@ Source: [Jake VanderPlas 2019 Pycon Talk]()
 [Edward Tufte](https://www.edwardtufte.com/tufte/) popularized the idea of [data to ink ratio](https://infovis-wiki.net/wiki/Data-Ink_Ratio). Simply put, it implies removing as much as chart junk as possible such that only the informative parts remain.
 
 ![](img/avoid_chart_junk.png){: style="width:75%"}
-Resources:
