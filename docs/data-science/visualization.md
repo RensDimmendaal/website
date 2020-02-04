@@ -1,8 +1,16 @@
 # Visualization
 
-I really enjoyed [these slides](./data/principles_of_viz.pdf) on the principles of visualization from Saravanan Thirumuruganathan's [course on Data Mining](https://saravanan-thirumuruganathan.github.io/cse5334Spring2015/). Below my three most important take aways.
+## Why summary statistics are not enough
+
+Data sets with identical summary statistics can look totally different.
+
+![](img/dinosaur_dozen.gif)
+
+[Source](https://www.autodeskresearch.com/publications/samestats)
 
 ## Know efficient visualization mechanics
+
+I really enjoyed [these slides](./data/principles_of_viz.pdf) on the principles of visualization from Saravanan Thirumuruganathan's [course on Data Mining](https://saravanan-thirumuruganathan.github.io/cse5334Spring2015/). I particularly liked the overview of efficient visualization mechanics.
 
 ![](img/effectiveness_of_visual_cues.png){: style="width:50%"}
 
