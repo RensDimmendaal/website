@@ -2,7 +2,7 @@
 
 If you're aware of the benefits of having a separate conda environment for each project, but are too lazy to create and activate it all the time. Then the aliases for your .bashrc / .zshrc below might help.
 
-When start a new project i simply type `mkconda` in my project directory which creates a new conda environment, with the same name as the project root directory. To remove the conda environment I run `rmconda`. When I return later to the project I can activate the environment by running `ca`. To setup jupyterlab \*within\* an environment I can run `mkjupy`. I also have commands to quickly open jupyter lab `jl` and other environments like vscode.
+When I start a new project I type `mkconda` in my project directory which creates a new conda environment, with the same name as the project root directory. When I want to activate that environment I can type `ca`. To setup jupyterlab \*within\* an environment I can run `mkjupy`. I also have commands to quickly open jupyter lab `jl` and other environments like vscode. I also have an alias to remove a conda environment `rmconda`.
 
 ```bash
 # Make conda environment
