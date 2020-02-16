@@ -4,14 +4,14 @@ description: Resources on public speaking
 
 # Public speaking
 
-## Slide tips:
+## Slide tips
 
 Short and sweet:
 
 * Maximize use of images 
 * Text as large as possible
 * No sentences
-* Max six objects per slide \(title included\)
+* Max six objects per slide (title included)
 * Dark background, light text
 * Guide attention within slide with animation, contrast, and size
 * Display slide, _after_ you've made the point as a reminder/illustration
