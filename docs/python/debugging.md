@@ -15,7 +15,7 @@ In jupyter notebooks you can start the debugger as above, but you can also use t
 It works like this:
 
 1. Get an error in a cell
-2. Run `%debug` in another cell to start the debuggre the error point of last run cell
+2. Run `%debug` in another cell to start the debugger the error point of last run cell
 
 ## ipdb
 
