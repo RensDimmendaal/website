@@ -2,7 +2,7 @@
 
 ## TLDR
 1. `echo "_justme*" >> ~/.gitignore`
-2. `git config --global core.excludesfile '~/.gitignore'
+2. `git config --global core.excludesfile '~/.gitignore'`
 3. Add files and folders with prefix `_justme` in any repo and they'll always be ignored
 
 ## Longer version
