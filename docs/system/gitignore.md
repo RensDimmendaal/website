@@ -19,6 +19,8 @@ Finally, we can test our solution by adding any file or folder that starts with 
 
 ## Alternative solution
 
+Source: [Mark Land](https://twitter.com/mark__land/status/1261539028945469441)
+
 Make a folder in your project just for you (e.g. `_justme/`) and add  with a gitignore file containing `"*"` to it, now that folder is ignored. The plus side of this solution is that there's no global gitignore magic going on. Possible downsides are that you can only have these private files in that folder and that you have to set this up for each project. I think both solutions are fine.
 
 ```
