@@ -16,3 +16,13 @@ Today I found a solution on [stackoverflow](https://stackoverflow.com/a/22906950
 ```
 
 Finally, we can test our solution by adding any file or folder that starts with `_justme*` and see that it does not occur in our untracked files. Enjoy!
+
+## Alternative solution
+
+Make a folder in your project just for you (e.g. `_justme/`) and add  with a gitignore file containing `"*"` to it, now that folder is ignored. The plus side of this solution is that there's no global gitignore magic going on. Possible downsides are that you can only have these private files in that folder and that you have to set this up for each project. I think both solutions are fine.
+
+```
+cd <project_root>
+mkdir _justme
+echo "*" >> _justme/.gitignore
+```
