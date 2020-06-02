@@ -28,3 +28,4 @@ To that end I use this shortcut:
 ```
 
 You can add it to your jupyter lab setup by going to `Settings > Advanced Settings Editor > Keyboard Shortcuts` and pasting this into the `User Preferences` pane.
+Now if you press `Ctrl+Alt+R` (or `CapsLock+R` if you've remapped it like I did), you will restart the notebook kernel and run all cells.
