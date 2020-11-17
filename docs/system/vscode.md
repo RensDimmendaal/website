@@ -1,5 +1,16 @@
 # VSCode
 
+## Opening Files
+
+Sometimes my projects are too large for the file manager in the sidebar to work well. I spend too much time trying to find the file I need.
+To solve this I installed [fzf the fuzzy file finder](https://github.com/junegunn/fzf) and created the following alias:
+
+```
+alias fc='code -r $(fzf)'
+```
+
+When I type `fc` the fuzzy file finder opens and the selected file is opened in my current vscode window. Nice!
+
 ## Complex autoformatting
 
 I like use multiple packages for autoformatting:
