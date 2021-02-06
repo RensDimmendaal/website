@@ -1,5 +1,11 @@
 # Training
 
+## Teaching the whole game
+
+I'm a big fan of fast.ai's courses. I love how they explain their teaching philosophy [here](https://www.fast.ai/2016/10/08/teaching-philosophy/).
+There are many tips in there, but the big one is ["teaching the whole game"](https://www.goodreads.com/book/show/4116086-making-learning-whole).
+This refers to a top-down learning approach. First you enable the students do something that's valuable to them. Only afterwards you dive deeper to explore the inner workings.
+
 ## Tips from Jeff Olson
 > Don't teach chemistry; teach how to cook.
 -- Jeff Olson (paraphrased)
@@ -24,7 +30,7 @@
 
 ### Students don't need simple example; they need clear ones.
 
-* [Again credits to Jeff Olson:](https://blog.upperlinecode.com/students-dont-need-simple-examples-424bb1ceb820)
+[Again credits to Jeff Olson:](https://blog.upperlinecode.com/students-dont-need-simple-examples-424bb1ceb820)
 
 Examples:
 
