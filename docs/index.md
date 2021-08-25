@@ -8,10 +8,10 @@ A lot of the content was originally created by other people. I try to make it cl
 ## Blog
 Sometimes I blog, you can find the posts here:
 
-* [Rhyme with AI](https://blog.godatadriven.com/rhyme-with-ai)
-* [Data Science Podcast Recommendations](https://blog.godatadriven.com/data-science-podcast-recommendations)
-* [Catching chatbots by the long tail](https://godatadriven.com/blog/catching-chatbots-by-the-long-tail/)
 * [Three tips for data centric AI and one data science lesson](https://godatadriven.com/blog/three-tips-for-data-centric-ai-and-one-data-science-lesson/)
+* [Catching chatbots by the long tail](https://godatadriven.com/blog/catching-chatbots-by-the-long-tail/)
+* [Data Science Podcast Recommendations](https://blog.godatadriven.com/data-science-podcast-recommendations)
+* [Rhyme with AI](https://blog.godatadriven.com/rhyme-with-ai)
 
 ## Projects
 
