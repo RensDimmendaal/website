@@ -56,4 +56,5 @@ extra_javascript:
 plugins:
     - redirects:
         redirect_maps:
-            'emoji': 'https://share.streamlit.io/rensdimmendaal/emoji-recommender/main/app/streamlit.py'
+            'emoji': 'https://emoji-jp54sgosgq-ez.a.run.app/'
+            'emoji_streamlit': 'https://share.streamlit.io/rensdimmendaal/emoji-recommender/main/app/streamlit.py'
