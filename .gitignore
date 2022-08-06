@@ -130,3 +130,6 @@ dmypy.json
 
 # Local data (e.g. snippetslab export)
 /local_data
+
+# built hugo suite
+/website/public
