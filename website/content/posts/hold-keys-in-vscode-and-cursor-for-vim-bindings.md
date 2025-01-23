@@ -1,6 +1,6 @@
 +++
 author = "Rens Dimmendaal"
-title = "Fix Key Repeat in VSCode/Cursor on macOS for Vim bindings"
+title = "TIL: Fix Key Repeat in VSCode/Cursor on macOS for Vim bindings"
 date = "2025-01-23"
 +++
 
