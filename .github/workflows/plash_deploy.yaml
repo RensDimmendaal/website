@@ -4,10 +4,14 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_target:
+    types: [closed]
   workflow_dispatch:
 
 jobs:
-  deploy:
+  setup:
     runs-on: ubuntu-latest
     steps:
       - name: Mask PLASH_SECRET
@@ -29,5 +33,35 @@ jobs:
       - name: Install plash-cli with pip
         run: pip install plash-cli
 
-      - name: Deploy to Plash
+  deploy-preview:
+    needs: setup
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && (github.event.pull_request.head.repo.full_name == github.repository || contains(github.event.pull_request.labels.*.name, 'preview-docs'))
+    environment: 
+        name: "Preview"
+        url: https://rens-pr-${{ github.event.pull_request.number }}.plash.sh
+    steps:
+      - name: Deploy PR Preview
+        run: bash ./deploy.sh "rens-pr-${{ github.event.pull_request.number }}"
+
+  delete-preview:
+    needs: setup
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_target' && github.event.action == 'closed'
+    environment: 
+        name: "staging"
+        url: https://rens-pr-${{ github.event.pull_request.number }}.plash.sh
+    steps:
+      - name: Delete PR Preview
+        run: plash_delete --force --app_id "rens-pr-${{ github.event.pull_request.number }}"
+
+  deploy-docs:
+    needs: setup
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+    environment: 
+        name: "production"
+        url: https://rensdimmnendaal.com
+    steps:
+      - name: Deploy Plash Docs
         run: bash ./deploy.sh

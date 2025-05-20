@@ -15,8 +15,8 @@ mkdir -p plash-dir
 cp -r posts plash-dir/
 
 # Set PLASH_APP_ID based on dev flag
-if [ "$1" == "dev" ]; then
-    echo "export PLASH_APP_ID=rens" >> plash-dir/.plash
+if [ "$1" == "rens-"* ]; then
+    echo "export PLASH_APP_ID="$1" >> plash-dir/.plash
 else
     echo "export PLASH_APP_ID=rensdimmendaal.com" >> plash-dir/.plash
 fi
