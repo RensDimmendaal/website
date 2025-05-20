@@ -41,6 +41,25 @@ jobs:
         name: "Preview"
         url: https://rens-pr-${{ github.event.pull_request.number }}.plash.sh
     steps:
+      - name: Mask PLASH_SECRET
+        run: echo "::add-mask::${{ secrets.PLASH_SECRET }}"
+        
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Create Plash config
+        run: |
+          mkdir -p ~/.config
+          echo '${{ secrets.PLASH_SECRET }}' > ~/.config/plash_config.json
+          
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          
+      - name: Install plash-cli with pip
+        run: pip install plash-cli
+        
       - name: Deploy PR Preview
         run: bash ./deploy.sh "rens-pr-${{ github.event.pull_request.number }}"
 
@@ -52,6 +71,22 @@ jobs:
         name: "staging"
         url: https://rens-pr-${{ github.event.pull_request.number }}.plash.sh
     steps:
+      - name: Mask PLASH_SECRET
+        run: echo "::add-mask::${{ secrets.PLASH_SECRET }}"
+        
+      - name: Create Plash config
+        run: |
+          mkdir -p ~/.config
+          echo '${{ secrets.PLASH_SECRET }}' > ~/.config/plash_config.json
+          
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          
+      - name: Install plash-cli with pip
+        run: pip install plash-cli
+        
       - name: Delete PR Preview
         run: plash_delete --force --app_id "rens-pr-${{ github.event.pull_request.number }}"
 
@@ -63,5 +98,24 @@ jobs:
         name: "production"
         url: https://rensdimmnendaal.com
     steps:
+      - name: Mask PLASH_SECRET
+        run: echo "::add-mask::${{ secrets.PLASH_SECRET }}"
+        
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Create Plash config
+        run: |
+          mkdir -p ~/.config
+          echo '${{ secrets.PLASH_SECRET }}' > ~/.config/plash_config.json
+          
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          
+      - name: Install plash-cli with pip
+        run: pip install plash-cli
+        
       - name: Deploy Plash Docs
         run: bash ./deploy.sh
