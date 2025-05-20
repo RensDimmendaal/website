@@ -18,7 +18,7 @@ cp -r posts plash-dir/
 if [ "$1" == "rens-"* ]; then
     echo "export PLASH_APP_ID="$1" >> plash-dir/.plash
 else
-    echo "export PLASH_APP_ID=rensdimmendaal.com" >> plash-dir/.plash
+    echo "export PLASH_APP_ID="rensdimmendaal.com" >> plash-dir/.plash
 fi
 
 cp main.py plash-dir/
