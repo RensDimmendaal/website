@@ -1,0 +1,33 @@
+name: Deploy to Plash
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mask PLASH_SECRET
+        run: echo "::add-mask::${{ secrets.PLASH_SECRET }}"
+
+      - name: Create Plash config
+        run: |
+          mkdir -p ~/.config
+          echo '${{ secrets.PLASH_SECRET }}' > ~/.config/plash_config.json
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install plash-cli with pip
+        run: pip install plash-cli
+
+      - name: Deploy to Plash
+        run: bash ./deploy.sh

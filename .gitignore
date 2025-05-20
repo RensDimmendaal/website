@@ -133,3 +133,6 @@ dmypy.json
 
 # built hugo suite
 /website/public
+
+plash-dir
+llms
