@@ -321,44 +321,44 @@ def posts(fname:str):
 
 @rt("/")
 def index():
-    """Homepage for the blog with single column newspaper-inspired density."""
-    # Group posts by date
+    return Container(
+        create_site_header(),
+        create_bio_section(), 
+        create_centered_heading("Latest Posts"),
+        Main(id="posts-container", cls="mb-6"),
+        Div(hx_get="/posts-page/0", hx_trigger="load", hx_target="#posts-container"),
+        create_site_footer(),
+        cls=ContainerT.sm,
+    )
+
+@rt("/posts-page/{page}")
+def posts_page(page:int):
+    posts_per_page = 5
+    all_posts_list = published_posts()
+    start_idx = page * posts_per_page
+    end_idx = start_idx + posts_per_page
+    page_posts = all_posts_list[start_idx:end_idx]
+    
+    if not page_posts: return ""
+    
     posts_by_date = {}
-    for post in published_posts():
+    for post in page_posts:
         date = post.get('date')
-        if date not in posts_by_date:
-            posts_by_date[date] = []
+        if date not in posts_by_date: posts_by_date[date] = []
         posts_by_date[date].append(post)
     
-    # Sort dates in descending order
     sorted_dates = sorted(posts_by_date.keys(), reverse=True)
-    
-    # Create article components
     articles = []
     
     for date in sorted_dates:
         articles.append(create_date_divider(date))
-        
-        # Articles for this date in a single column
         posts = posts_by_date[date]
-        for i, post in enumerate(posts):
-            # Mark the last post in each date group
-            is_last = (i == len(posts) - 1)
-            articles.append(create_article_card(post, is_last))
-
-    # Container with newspaper-inspired layout in single column
-    return Container(
-        create_site_header(),
-        create_bio_section(),
-        create_centered_heading("Latest Posts"),
-        # Main content with single column layout
-        Main(
-            *articles,
-            cls="mb-6"
-        ),
-        create_site_footer(),
-        cls=ContainerT.sm,
-    )
+        for i, post in enumerate(posts): articles.append(create_article_card(post, i == len(posts) - 1))
+    
+    has_more = end_idx < len(all_posts_list)
+    if has_more: articles.append(Div(hx_get=f"/posts-page/{page + 1}", hx_trigger="intersect once", hx_target="this", hx_swap="outerHTML"))
+    
+    return articles
 
 @rt("/search")
 def search(q:str=""):
