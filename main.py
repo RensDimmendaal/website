@@ -1,4 +1,4 @@
-import yaml, mistletoe, tantivy
+import yaml, mistletoe, tantivy, random
 from fastcore.all import *
 from fasthtml.common import *
 from monsterui.all import *
@@ -174,17 +174,32 @@ def create_site_header():
     return Div(
         DivFullySpaced(
             H1(A("Rens' Blog", href="/"), cls="text-2xl font-bold text-slate-800 hover:text-blue-600"),
-            Div(),
-            # Div(
-            #     *[A(label, href=f"/{label.lower()}", 
-            #         cls="mx-3 text-slate-600 hover:text-blue-600 transition-colors last:mr-0") 
-            #       for label in ["About", "Archive", "Contact"]],
-            #     cls="flex items-center"
-            # )
+            Form(
+                Div(
+                    UkIcon("search", cls="text-slate-400"),
+                    Input(name="q", placeholder="Search...", cls="border-0 focus:ring-0 text-sm w-32"),
+                    cls="flex items-center gap-1 border rounded px-2 py-1"
+                ),
+                action="/search", method="get"
+            )
         ),
         cls="border-b border-slate-200 py-4 mb-3"
     )
 
+
+def create_bio_section():
+    "Create bio section with random banner image"
+    banner_imgs = ["fish.jpg", "man.jpg", "tree.jpg"]
+    selected_img = random.choice(banner_imgs)
+    return Div(
+        Img(src=f"/static/{selected_img}", cls="w-full h-48 object-contain mb-4"),
+        Div(
+            P("I'm Rens Dimmendaal, a member of technical staff at ", A("Answer.AI", href="https://answer.ai", cls="text-blue-600 hover:text-blue-800 underline"), " a new kind of AI R&D Lab. I write about the things I learn.", 
+              cls="text-slate-700 text-sm leading-relaxed mb-0"),
+            cls="bg-slate-50 border-l-4 border-blue-500 p-4 rounded-r"
+        ),
+        cls="mb-6"
+    )
 
 def create_site_footer():
     """Create the consistent site footer with copyright and social links."""
@@ -239,25 +254,7 @@ def create_article_card(post, is_last=False):
     )
 
 
-def create_search_and_categories():
-    """Create a compact header with search and categories."""
-    return Div(
-        Form(
-            Div(
-                UkIcon("search", cls="text-slate-400"),
-                Input(name="q", placeholder="Search...", cls="border-0 focus:ring-0"),
-                cls="flex items-center gap-2 border rounded px-2 py-1 mb-3"
-            ),
-            action="/search", method="get"
-        ),
-        Div(
-            DivLAligned(
-                *[Label(A(f"{tag} ({count})", href=f"/tags/{tag}", cls="text-slate-600 hover:text-blue-600")) for tag, count in top_tags()],
-                cls="gap-2"
-            ),
-        ),
-        cls="mb-4"
-    )
+
 
 
 def create_centered_heading(title:str):
@@ -352,7 +349,7 @@ def index():
     # Container with newspaper-inspired layout in single column
     return Container(
         create_site_header(),
-        create_search_and_categories(),
+        create_bio_section(),
         create_centered_heading("Latest Posts"),
         # Main content with single column layout
         Main(
@@ -384,7 +381,6 @@ def search(q:str=""):
             search_articles.append(create_article_card(post, i == len(posts) - 1))
     return Container(
         create_site_header(),
-        create_search_and_categories(),
         create_centered_heading(f"Search Results: {q}"),
         Main(*search_articles if search_articles else [P("No posts found matching your search.", cls="text-center text-slate-600 my-12")], cls="mb-6"),
         create_site_footer(),
@@ -420,7 +416,6 @@ def tags(tag:str):
     
     return Container(
         create_site_header(),
-        create_search_and_categories(),
         create_centered_heading(f"Posts Tagged: {tag}"),
         
         # Main content
