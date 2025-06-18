@@ -5,6 +5,7 @@ from monsterui.all import *
 from monsterui.franken import LightboxContainer, LightboxItem, apply_classes
 from datetime import datetime
 from functools import cache
+from collections import Counter
 
 # CSS for lightbox images
 lightbox_css = """
@@ -66,11 +67,10 @@ class BlogRenderer(mistletoe.HTMLRenderer):
         alt = token.children[0].content if token.children else ''
         title = token.title if hasattr(token, 'title') else alt
         
-        # Handle relative paths
         if self.img_dir and not src.startswith(('http://', 'https://', '/')):
-            src = f'{self.img_dir}/{src}'
+            clean_img_dir = self.img_dir.lstrip('./')
+            src = f'/{clean_img_dir}/{src}'
         
-        # Create container with lightbox functionality
         figure = Div(
             LightboxContainer(
                 LightboxItem(
@@ -82,7 +82,7 @@ class BlogRenderer(mistletoe.HTMLRenderer):
                 data_uk_lightbox="animation: slide; caption-position: bottom"
             ),
             cls="lightbox-container",
-            style="width: 50%; margin: 1rem auto;"  # Critical for correct sizing
+            style="width: 50%; margin: 1rem auto;"
         )
         
         return str(figure)
@@ -119,6 +119,9 @@ def load_post(fp:Path):
 def all_posts(): return [load_post(fp) for fp in Path("./posts/").glob("*.md")]
 
 def published_posts(): return [p for p in all_posts() if not p.get('draft', False)]
+
+@cache
+def top_tags(n=5): return Counter(tag for p in published_posts() for tag in p.get('tags', [])).most_common(n)
 
 def create_search_index():
     schema_builder = tantivy.SchemaBuilder()
@@ -249,7 +252,7 @@ def create_search_and_categories():
         ),
         Div(
             DivLAligned(
-                *[Button(cat, cls=ButtonT.secondary) for cat in ["TIL", "AI", "Data Science", "Communication"]],
+                *[Label(A(f"{tag} ({count})", href=f"/tags/{tag}", cls="text-slate-600 hover:text-blue-600")) for tag, count in top_tags()],
                 cls="gap-2"
             ),
         ),
