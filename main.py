@@ -1,12 +1,10 @@
-import json
-import yaml
+import yaml, mistletoe, tantivy
 from fastcore.all import *
 from fasthtml.common import *
 from monsterui.all import *
 from monsterui.franken import LightboxContainer, LightboxItem, apply_classes
 from datetime import datetime
-import mistletoe
-from mistletoe.span_token import Image
+from functools import cache
 
 # CSS for lightbox images
 lightbox_css = """
@@ -113,11 +111,36 @@ def load_post(fp:Path):
         post = yaml.safe_load(post)
         post['content'] = "---\n".join(content)
         post['fname'] = fp.stem
+        post['draft'] = post.get('draft', False)
     else: raise NotImplementedError("No metadata found in post")
     return post
 
-# @flexicache(mtime_policy("./posts"))
+@cache
 def all_posts(): return [load_post(fp) for fp in Path("./posts/").glob("*.md")]
+
+def published_posts(): return [p for p in all_posts() if not p.get('draft', False)]
+
+def create_search_index():
+    schema_builder = tantivy.SchemaBuilder()
+    schema_builder.add_text_field("title", stored=True)
+    schema_builder.add_text_field("body", stored=True, tokenizer_name='en_stem')
+    schema_builder.add_text_field("tags", stored=True)
+    schema_builder.add_text_field("fname", stored=True)
+    schema = schema_builder.build()
+    index = tantivy.Index(schema)
+    writer = index.writer()
+    for post in published_posts():
+        writer.add_document(tantivy.Document(
+            title=[post['title']],
+            body=[post['content']],
+            tags=[' '.join(post.get('tags', []))],
+            fname=[post['fname']]
+        ))
+    writer.commit()
+    writer.wait_merging_threads()
+    return index
+
+search_index = create_search_index()
 
 def Tags(tags):
     """Create compact tags with muted styling."""
@@ -148,12 +171,13 @@ def create_site_header():
     return Div(
         DivFullySpaced(
             H1(A("Rens' Blog", href="/"), cls="text-2xl font-bold text-slate-800 hover:text-blue-600"),
-            Div(
-                *[A(label, href=f"/{label.lower()}", 
-                    cls="mx-3 text-slate-600 hover:text-blue-600 transition-colors last:mr-0") 
-                  for label in ["About", "Archive", "Contact"]],
-                cls="flex items-center"
-            )
+            Div(),
+            # Div(
+            #     *[A(label, href=f"/{label.lower()}", 
+            #         cls="mx-3 text-slate-600 hover:text-blue-600 transition-colors last:mr-0") 
+            #       for label in ["About", "Archive", "Contact"]],
+            #     cls="flex items-center"
+            # )
         ),
         cls="border-b border-slate-200 py-4 mb-3"
     )
@@ -215,17 +239,20 @@ def create_article_card(post, is_last=False):
 def create_search_and_categories():
     """Create a compact header with search and categories."""
     return Div(
-        Div(
-            UkIcon("search", cls="text-slate-400"),
-            Input(placeholder="Search...", cls="border-0 focus:ring-0"),
-            cls="flex items-center gap-2 border rounded px-2 py-1 mb-3"
+        Form(
+            Div(
+                UkIcon("search", cls="text-slate-400"),
+                Input(name="q", placeholder="Search...", cls="border-0 focus:ring-0"),
+                cls="flex items-center gap-2 border rounded px-2 py-1 mb-3"
+            ),
+            action="/search", method="get"
         ),
-        # Div(
-        #     DivLAligned(
-        #         *[Button(cat, cls=ButtonT.secondary) for cat in ["Food", "Travel", "Tech", "Life"]],
-        #         cls="gap-2"
-        #     ),
-        # ),
+        Div(
+            DivLAligned(
+                *[Button(cat, cls=ButtonT.secondary) for cat in ["TIL", "AI", "Data Science", "Communication"]],
+                cls="gap-2"
+            ),
+        ),
         cls="mb-4"
     )
 
@@ -297,7 +324,7 @@ def index():
     """Homepage for the blog with single column newspaper-inspired density."""
     # Group posts by date
     posts_by_date = {}
-    for post in all_posts():
+    for post in published_posts():
         date = post.get('date')
         if date not in posts_by_date:
             posts_by_date[date] = []
@@ -333,12 +360,40 @@ def index():
         cls=ContainerT.sm,
     )
 
+@rt("/search")
+def search(q:str=""):
+    if not q: return RedirectResponse("/")
+    searcher = search_index.searcher()
+    query = search_index.parse_query(q, ["title", "body", "tags"])
+    results = searcher.search(query, 20)
+    matching_posts = [first(p for p in published_posts() if p['fname'] == searcher.doc(hit[1])['fname'][0]) for hit in results.hits]
+    posts_by_date = {}
+    for post in matching_posts:
+        date = post.get('date')
+        if date not in posts_by_date: posts_by_date[date] = []
+        posts_by_date[date].append(post)
+    sorted_dates = sorted(posts_by_date.keys(), reverse=True)
+    search_articles = []
+    for date in sorted_dates:
+        search_articles.append(create_date_divider(date))
+        posts = posts_by_date[date]
+        for i, post in enumerate(posts):
+            search_articles.append(create_article_card(post, i == len(posts) - 1))
+    return Container(
+        create_site_header(),
+        create_search_and_categories(),
+        create_centered_heading(f"Search Results: {q}"),
+        Main(*search_articles if search_articles else [P("No posts found matching your search.", cls="text-center text-slate-600 my-12")], cls="mb-6"),
+        create_site_footer(),
+        cls=ContainerT.sm,
+    )
+
 @rt("/tags/{tag}")
 def tags(tag:str):
     """Display all posts with a specific tag."""
     # Group posts by date
     posts_by_date = {}
-    for post in all_posts():
+    for post in published_posts():
         if tag in post.get('tags', []):
             date = post.get('date')
             if date not in posts_by_date:
@@ -378,4 +433,4 @@ def tags(tag:str):
     )
 
 
-serve()
+serve(port=5005)

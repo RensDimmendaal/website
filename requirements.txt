@@ -2,3 +2,4 @@ python-fasthtml
 monsterui
 fastcore
 pyyaml
+tantivy
