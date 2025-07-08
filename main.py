@@ -1,8 +1,7 @@
-import yaml, mistletoe, tantivy, random
+import yaml, tantivy, random
 from fastcore.all import *
 from fasthtml.common import *
 from monsterui.all import *
-from monsterui.franken import LightboxContainer, LightboxItem, apply_classes
 from datetime import datetime
 from functools import cache
 from collections import Counter
@@ -35,74 +34,7 @@ app, rt = fast_app(
     styles=[lightbox_css]
 )
 
-# Custom class map for blog styling
-custom_class_map = {
-    'h1': 'text-3xl font-bold text-slate-800 my-4',
-    'h2': 'text-2xl font-bold text-slate-800 my-3',
-    'h3': 'text-xl font-bold text-slate-800 my-2',
-    'p': 'text-slate-600 my-2 leading-normal',
-    'a': 'text-blue-600 hover:text-blue-800 underline',
-    'ul': 'list-disc pl-5 my-3 text-slate-600',
-    'ol': 'list-decimal pl-5 my-3 text-slate-600',
-    'li': 'my-1',
-    'blockquote': 'border-l-4 border-slate-300 pl-4 italic my-3 text-slate-600',
-    'pre': 'bg-slate-100 p-4 rounded my-3 overflow-auto',
-    'code': 'bg-slate-100 px-1 py-0.5 rounded text-sm font-mono',
-    'hr': 'my-4 border-t border-slate-200',
-    'table': 'w-full border-collapse my-3',
-    'th': 'border border-slate-300 px-4 py-2 bg-slate-100 text-left',
-    'td': 'border border-slate-300 px-4 py-2',
-    'strong': 'font-bold',
-    'em': 'italic'
-}
 
-# Custom markdown renderer with lightbox for images
-class BlogRenderer(mistletoe.HTMLRenderer):
-    def __init__(self, img_dir=None):
-        super().__init__()
-        self.img_dir = img_dir
-        
-    def render_image(self, token):
-        src = token.src
-        alt = token.children[0].content if token.children else ''
-        title = token.title if hasattr(token, 'title') else alt
-        
-        if self.img_dir and not src.startswith(('http://', 'https://', '/')):
-            clean_img_dir = self.img_dir.lstrip('./')
-            src = f'/{clean_img_dir}/{src}'
-        
-        figure = Div(
-            LightboxContainer(
-                LightboxItem(
-                    Img(src=src, alt=alt, cls="lightbox-img rounded", loading="lazy"),
-                    href=src,
-                    data_alt=alt,
-                    data_caption=title or alt
-                ),
-                data_uk_lightbox="animation: slide; caption-position: bottom"
-            ),
-            cls="lightbox-container",
-            style="width: 50%; margin: 1rem auto;"
-        )
-        
-        return str(figure)
-
-def render_md(md_content:str, class_map=None, class_map_mods=None, img_dir:str=None):
-    """Renders markdown with lightbox-enabled images."""
-    if md_content == '': return md_content
-    
-    # Create renderer with img_dir
-    class CustomRenderer(BlogRenderer):
-        def __init__(self):
-            super().__init__(img_dir=img_dir)
-    
-    html_content = mistletoe.markdown(md_content, CustomRenderer)
-    
-    effective_class_map = class_map if class_map is not None else custom_class_map
-    if class_map_mods:
-        effective_class_map = {**effective_class_map, **class_map_mods}
-    
-    return NotStr(apply_classes(html_content, effective_class_map))
 
 def load_post(fp:Path):
     content = fp.read_text()
@@ -119,6 +51,26 @@ def load_post(fp:Path):
 def all_posts(): return [load_post(fp) for fp in Path("./posts/").glob("*.md")]
 
 def published_posts(): return [p for p in all_posts() if not p.get('draft', False)]
+
+def load_pypost(fp:Path):
+    content = fp.read_text()
+    if content.startswith('"""') and '---' in content:
+        docstring_end = content.find('"""', 3)
+        docstring = content[3:docstring_end]
+        _, meta, _ = docstring.split('---')
+        post = yaml.safe_load(meta)
+        post['fname'] = fp.stem
+        post['draft'] = post.get('draft', False)
+        post['is_pypost'] = True
+        module = importlib.import_module(f"pyposts.{fp.stem}")
+        post['preview_content'] = module.preview_md
+        return post
+    return None
+
+@cache
+def all_pyposts(): return [p for p in [load_pypost(fp) for fp in Path("./pyposts/").glob("*.py") if fp.stem != "__init__"] if p]
+
+def published_pyposts(): return [p for p in all_pyposts() if not p.get('draft', False)]
 
 @cache
 def top_tags(n=5): return Counter(tag for p in published_posts() for tag in p.get('tags', [])).most_common(n)
@@ -145,47 +97,10 @@ def create_search_index():
 
 search_index = create_search_index()
 
-def Tags(tags):
-    """Create compact tags with muted styling."""
-    return DivLAligned(
-        *[Label(
-            A(tag, href=f"/tags/{tag}", cls="text-slate-600 hover:text-blue-600"),
-          ) for tag in tags], 
-        cls="gap-1 mt-1"
-    )
-
-def format_pretty_date(date_str):
-    """Convert a date string from YYYY-MM-DD to a human-friendly format."""
-    try: return datetime.strptime(date_str, "%Y-%m-%d").strftime("%B %d, %Y")
-    except: return date_str
-
-def create_date_divider(date):
-    """Create a date divider with centered text within a line."""
-    return Div(
-        DividerSplit(
-            Small(format_pretty_date(date), cls="text-slate-600 text-xs font-light px-3 bg-white")
-        ),
-        cls="my-6"
-    )
 
 
-def create_site_header():
-    """Create the consistent site header with navigation."""
-    return Div(
-        DivFullySpaced(
-            H1(A("Rens' Blog", href="/"), cls="text-2xl font-bold text-slate-800 hover:text-blue-600"),
-            Form(
-                Div(
-                    UkIcon("search", cls="text-slate-400"),
-                    Input(name="q", placeholder="Search...", cls="border-0 focus:ring-0 text-sm w-32"),
-                    cls="flex items-center gap-1 border rounded px-2 py-1"
-                ),
-                action="/search", method="get"
-            )
-        ),
-        cls="border-b border-slate-200 py-4 mb-3"
-    )
 
+from blog_components import create_site_header, create_site_footer, create_date_divider, format_pretty_date, Tags, render_md, custom_class_map
 
 def create_bio_section():
     "Create bio section with random banner image"
@@ -201,55 +116,27 @@ def create_bio_section():
         cls="mb-6"
     )
 
-def create_site_footer():
-    """Create the consistent site footer with copyright and social links."""
-    return Footer(
-        DivFullySpaced(
-            P("© 2025 Rens' Blog. All rights reserved.", cls="text-xs text-slate-500"),
-            DivLAligned(
-                *[UkIconLink(icon, cls="text-slate-600 hover:text-blue-600") 
-                  for icon in ["twitter", "github", "linkedin"]],
-                cls="gap-3"
-            ),
-        ),
-        cls="py-3 mt-6 border-t border-slate-200"
-    )
-
 
 def create_article_card(post, is_last=False):
-    """Create a compact newspaper-like article in single column."""
-    # Don't add bottom border for the last article in a group
     border_class = "" if is_last else "border-b border-slate-200"
-    
-    # Use the post's fname as the URL slug
     url_slug = post["fname"]
     
-    content = post['content']
-    keep_reading = Div()
-    if "## " in content: 
-        content = content.split("## ")[0].strip()
-        keep_reading = A(
-                DivLAligned(
-                    UkIcon("corner-down-right", cls="text-blue-600 mr-1"),
-                    Small("Keep reading", cls="text-blue-600"),
-                ),
-                href=f"/posts/{url_slug}",
-                cls="text-sm"
-            )
+    if post.get('is_pypost'):
+        content = post['preview_content']
+        href = f"/{url_slug}"
+        keep_reading = A(DivLAligned(UkIcon("play", cls="text-blue-600 mr-1"), Small("Try demo", cls="text-blue-600")), href=href, cls="text-sm")
+    else:
+        content = post['content']
+        keep_reading = Div()
+        if "## " in content: 
+            content = content.split("## ")[0].strip()
+            keep_reading = A(DivLAligned(UkIcon("corner-down-right", cls="text-blue-600 mr-1"), Small("Keep reading", cls="text-blue-600")), href=f"/posts/{url_slug}", cls="text-sm")
+        href = f"/posts/{url_slug}"
 
     return Article(
-        H4(
-            A(
-                post["title"],
-                href=f"/posts/{url_slug}",
-                cls="text-slate-800 hover:text-blue-600"
-            )
-        ),
+        H4(A(post["title"], href=href, cls="text-slate-800 hover:text-blue-600")),
         render_md(content, class_map=custom_class_map, img_dir="./posts/"),
-        DivFullySpaced(
-            keep_reading,
-            Tags(post.get("tags",["Untagged"])),
-        ),
+        DivFullySpaced(keep_reading, Tags(post.get("tags",["Untagged"]))),
         cls=f"mb-4 pb-2 {border_class}"
     )
 
@@ -334,7 +221,7 @@ def index():
 @rt("/posts-page/{page}")
 def posts_page(page:int):
     posts_per_page = 5
-    all_posts_list = published_posts()
+    all_posts_list = sorted(published_posts() + published_pyposts(), key=lambda p: p.get('date', ''), reverse=True)
     start_idx = page * posts_per_page
     end_idx = start_idx + posts_per_page
     page_posts = all_posts_list[start_idx:end_idx]
@@ -430,5 +317,22 @@ def tags(tag:str):
         cls=ContainerT.sm,
     )
 
+
+import importlib
+from pathlib import Path
+
+for py_file in Path("pyposts").glob("*.py"):
+    if py_file.stem != "__init__":
+        print(f"Loading module: {py_file.stem}")
+        try:
+            module = importlib.import_module(f"pyposts.{py_file.stem}")
+            if hasattr(module, 'ar'): 
+                print(f"Adding routes from {py_file.stem}")
+                module.ar.to_app(app)
+        except Exception as e:
+            print(f"Error loading {py_file.stem}: {e}")
+
+print("Registered routes:")
+for route in app.routes: print(f"  {route.methods} {route.path}")
 
 serve()
