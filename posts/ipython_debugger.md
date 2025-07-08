@@ -1,9 +1,9 @@
 ---
-title: "Catching chatbots by the long tail"
+title: "IPython debugger"
 author: "Rens Dimmendaal"
-date: "2021-05-31"
-tags: ["Data Science", "AI", "Chatbots", "NLP"]
-draft: false
+date: "2025-06-18"
+tags: ["Data Science", "AI", "Chatbots", "NLP", "Debugging"]
+draft: true
 ---
 
 Shell sage is an amazing tool that lets you chat with an LLM inside your terminal.

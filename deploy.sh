@@ -13,6 +13,7 @@ fi
 mkdir -p plash-dir
 
 cp -r posts plash-dir/
+cp -r static plash-dir/
 
 # Set PLASH_APP_ID based on dev flag
 if [ "$1" == "dev" ]; then
@@ -25,3 +26,4 @@ cp main.py plash-dir/
 cp requirements.txt plash-dir/
 
 plash_deploy --path plash-dir
+plash_logs --path plash-dir --tail
