@@ -123,7 +123,7 @@ def create_article_card(post, is_last=False):
     
     if post.get('is_pypost'):
         content = post['preview_content']
-        href = f"/{url_slug}"
+        href = f"/pyposts/{url_slug}"
         keep_reading = A(DivLAligned(UkIcon("play", cls="text-blue-600 mr-1"), Small("Try demo", cls="text-blue-600")), href=href, cls="text-sm")
     else:
         content = post['content']

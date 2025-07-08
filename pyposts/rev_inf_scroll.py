@@ -1,7 +1,7 @@
 """
 ---
-title: "Reverse Infinite Scroll Demo"
-date: "2025-01-03"
+title: "Reverse Infinite Scroll in FastHTML"
+date: "2025-07-08"
 tags: ["demo", "htmx", "fasthtml"]
 draft: false
 ---
@@ -12,11 +12,11 @@ from monsterui.all import *
 from blog_components import create_site_header, create_site_footer, create_date_divider, Tags, render_md, custom_class_map
 import itertools
 
-ar = APIRouter()
+ar = APIRouter(prefix="/pyposts")
 logs = [(f"Log", i) for i in range(1, 201)]
 
 preview_md = """
-Today I learned, how to build a *reverse* infinite scroll in FastHTML with CSS. 
+Today I learned, how to build a *reverse* infinite scroll in FastHTML. 
 I needed it to create a logviewer, where you want to see the latest logs, but also want to scroll up to see older entries.
 
 Below you can see the final result, and after that I explain how I built it. 
@@ -30,7 +30,7 @@ def rev_inf_scroll():
             A(DivLAligned(UkIcon("arrow-left", cls="text-blue-600 h-4 w-4 mr-2"), Span("Back to posts", cls="text-blue-600")), href="/", cls="inline-flex items-center text-sm hover:text-blue-800"),
             cls="mb-3 items-center"
         ),
-        H1("Reverse Infinite Scroll Demo", cls="text-3xl font-bold text-slate-800 mt-3 mb-3"),
+        H1("Reverse Infinite Scroll in FastHTML", cls="text-3xl font-bold text-slate-800 mt-3 mb-3"),
         create_date_divider("2025-01-03"),
         Article(render_md(preview_md, class_map=custom_class_map), cls="pt-1 mb-6"),
         
@@ -51,13 +51,13 @@ def rev_inf_scroll():
 
 There's three parts to this solution.
 
-### 1. Dynamically adding new rows as you scroll
+### 1. Dynamically adding new rows as you scroll with HTMX
 
-The standard pattern, scroll down, new items append at bottom, is easy with HTMX. The key parts are the `hx_trigger="intersect once"` and `hx_swap="afterbegin"` which means that when the last row is revealed, the next page is loaded.
-
+The standard pattern, scroll down, new items append at bottom, is easy with HTMX. 
 Phihung's excellent [FastHTML + HTMX examples](https://huggingface.co/spaces/phihung/htmx_examples) has a live example. 
 Super useful! Check it out if you haven't seen it before!
 
+The key parts are the `hx_trigger="intersect once"` and `hx_swap="afterbegin"` which means that when the last row is revealed, the next page is loaded.
 
 ### 2. Reverse the container in CSS
 
@@ -106,12 +106,12 @@ def get():
 
 @rt("/load_logs")
 def load_logs(page: int, limit: int = 5):
-    # Key: Reverse slice to get newest entries first
+    # Key: Reverse data to get newest entries at the bottom
     page_logs = logs[-(page * limit):-(page - 1) * limit if page > 1 else None]
     if not page_logs: return []
     
     rows = [Tr(Td(name), Td(id)) for name, id in page_logs]
-    # Key: afterbegin + intersect once for reverse loading
+    # Key: `intersect once` and `afterbegin` for infinite scroll
     rows.append(Tr(hx_trigger="intersect once", hx_swap="afterbegin", 
                    hx_get=f"/load_logs?page={page + 1}", hx_target="#logs-body", 
                    style="height: 1px; opacity: 0;"))

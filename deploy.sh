@@ -14,6 +14,7 @@ mkdir -p plash-dir
 
 cp -r posts plash-dir/
 cp -r static plash-dir/
+cp -r pyposts plash-dir/
 
 # Set PLASH_APP_ID based on dev flag
 if [ "$1" == "dev" ]; then
