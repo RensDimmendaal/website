@@ -1,16 +1,14 @@
-"""
----
-title: "Reverse Infinite Scroll in FastHTML"
-date: "2025-07-08"
-tags: ["demo", "htmx", "fasthtml"]
-draft: false
----
-"""
-
 from fasthtml.common import *
 from monsterui.all import *
 from blog_components import create_site_header, create_site_footer, create_date_divider, Tags, render_md, custom_class_map
-import itertools
+
+# Metadata for this pypost
+metadata = {
+    "title": "Reverse Infinite Scroll in FastHTML",
+    "date": "2025-07-08", 
+    "tags": ["demo", "htmx", "fasthtml"],
+    "draft": False
+}
 
 ar = APIRouter(prefix="/pyposts")
 logs = [(f"Log", i) for i in range(1, 201)]
@@ -30,8 +28,8 @@ def rev_inf_scroll():
             A(DivLAligned(UkIcon("arrow-left", cls="text-blue-600 h-4 w-4 mr-2"), Span("Back to posts", cls="text-blue-600")), href="/", cls="inline-flex items-center text-sm hover:text-blue-800"),
             cls="mb-3 items-center"
         ),
-        H1("Reverse Infinite Scroll in FastHTML", cls="text-3xl font-bold text-slate-800 mt-3 mb-3"),
-        create_date_divider("2025-01-03"),
+        H1(metadata["title"], cls="text-3xl font-bold text-slate-800 mt-3 mb-3"),
+        create_date_divider(metadata["date"]),
         Article(render_md(preview_md, class_map=custom_class_map), cls="pt-1 mb-6"),
         
         H2("Live Demo", cls="text-2xl font-bold text-slate-800 mb-4"),
@@ -120,7 +118,7 @@ def load_logs(page: int, limit: int = 5):
 serve()
 ```
 """, class_map=custom_class_map), cls="pt-6 mb-6"),
-        Tags(["demo", "htmx", "fasthtml"]),
+        Tags(metadata["tags"]),
         create_site_footer(),
         cls="max-w-4xl mx-auto"
     )

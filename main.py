@@ -1,4 +1,4 @@
-import yaml, tantivy, random
+import yaml, tantivy, random, importlib
 from fastcore.all import *
 from fasthtml.common import *
 from monsterui.all import *
@@ -53,18 +53,17 @@ def all_posts(): return [load_post(fp) for fp in Path("./posts/").glob("*.md")]
 def published_posts(): return [p for p in all_posts() if not p.get('draft', False)]
 
 def load_pypost(fp:Path):
-    content = fp.read_text()
-    if content.startswith('"""') and '---' in content:
-        docstring_end = content.find('"""', 3)
-        docstring = content[3:docstring_end]
-        _, meta, _ = docstring.split('---')
-        post = yaml.safe_load(meta)
-        post['fname'] = fp.stem
-        post['draft'] = post.get('draft', False)
-        post['is_pypost'] = True
+    try:
         module = importlib.import_module(f"pyposts.{fp.stem}")
-        post['preview_content'] = module.preview_md
-        return post
+        if hasattr(module, 'metadata'):
+            post = module.metadata.copy()
+            post['fname'] = fp.stem
+            post['draft'] = post.get('draft', False)
+            post['is_pypost'] = True
+            post['preview_content'] = getattr(module, 'preview_md', '')
+            return post
+    except Exception as e:
+        print(f"Error loading pypost {fp.stem}: {e}")
     return None
 
 @cache
@@ -318,19 +317,17 @@ def tags(tag:str):
     )
 
 
-import importlib
-from pathlib import Path
 
 for py_file in Path("pyposts").glob("*.py"):
-    if py_file.stem != "__init__":
-        print(f"Loading module: {py_file.stem}")
-        try:
-            module = importlib.import_module(f"pyposts.{py_file.stem}")
-            if hasattr(module, 'ar'): 
-                print(f"Adding routes from {py_file.stem}")
-                module.ar.to_app(app)
-        except Exception as e:
-            print(f"Error loading {py_file.stem}: {e}")
+    if py_file.stem == "__init__": continue
+    print(f"Loading module: {py_file.stem}")
+    try:
+        module = importlib.import_module(f"pyposts.{py_file.stem}")
+        if hasattr(module, 'ar'): 
+            print(f"Adding routes from {py_file.stem}")
+            module.ar.to_app(app)
+    except Exception as e:
+        print(f"Error loading {py_file.stem}: {e}")
 
 print("Registered routes:")
 for route in app.routes: print(f"  {route.methods} {route.path}")
