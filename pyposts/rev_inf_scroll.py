@@ -22,7 +22,7 @@ Below you can see the final result, and after that I explain how I built it.
 
 @ar
 def rev_inf_scroll():
-    return create_pypost_layout(metadata,
+    return create_post_layout(metadata,
         Article(render_md(preview_md, class_map=custom_class_map), cls="pt-1 mb-6"),
         
         H2("Live Demo", cls="text-2xl font-bold text-slate-800 mb-4"),

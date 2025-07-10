@@ -99,7 +99,7 @@ search_index = create_search_index()
 
 
 
-from blog_components import create_site_header, create_site_footer, create_date_divider, format_pretty_date, Tags, render_md, custom_class_map
+from blog_components import *
 
 def create_bio_section():
     "Create bio section with random banner image"
@@ -168,41 +168,9 @@ def posts(fname:str):
         )
         
     rendered_content = render_md(p['content'], class_map=custom_class_map)
-    return Container(
-        # Use reusable header
-        create_site_header(),
-        
-        # Back to posts link with tags right-aligned
-        DivFullySpaced(
-            A(
-                DivLAligned(
-                    UkIcon("arrow-left", cls="text-blue-600 h-4 w-4 mr-2"),
-                    Span("Back to posts", cls="text-blue-600"),
-                ),
-                href="/",
-                cls="inline-flex items-center text-sm hover:text-blue-800"
-            ),
-            cls="mb-3 items-center"
-        ),
-        
-        H1(p['title'], cls="text-3xl font-bold text-slate-800 mt-3 mb-3"),
-        
-        # Date divider
-        create_date_divider(p['date']),
-        
-        # Main content
-        Article(
-            rendered_content,
-            cls="pt-1 mb-6"
-        ),
-        
-        # Tags at the bottom of the article
-        Tags(p.get('tags', [])),
-        
-        # Use reusable footer
-        create_site_footer(),
-        
-        cls=ContainerT.sm,
+    return create_post_layout(p, 
+        Article(rendered_content, cls="pt-1 mb-6"),
+        container_cls=ContainerT.sm
     )
 
 @rt("/")
