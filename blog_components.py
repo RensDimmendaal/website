@@ -72,7 +72,12 @@ def create_site_header():
     return Div(DivFullySpaced(H1(A("Rens' Blog", href="/"), cls="text-2xl font-bold text-slate-800 hover:text-blue-600"), Form(Div(UkIcon("search", cls="text-slate-400"), Input(name="q", placeholder="Search...", cls="border-0 focus:ring-0 text-sm w-32"), cls="flex items-center gap-1 border rounded px-2 py-1"), action="/search", method="get")), cls="border-b border-slate-200 py-4 mb-3")
 
 def create_site_footer():
-    return Footer(DivFullySpaced(P("© 2025 Rens' Blog. All rights reserved.", cls="text-xs text-slate-500"), DivLAligned(*[UkIconLink(icon, cls="text-slate-600 hover:text-blue-600") for icon in ["twitter", "github", "linkedin"]], cls="gap-3")), cls="py-3 mt-6 border-t border-slate-200")
+    social_links = [
+        ("twitter", "https://twitter.com/R_Dimm"),
+        ("github", "https://github.com/rensdimmendaal"),
+        ("linkedin", "https://linkedin.com/in/rensdimmendaal")
+    ]
+    return Footer(DivFullySpaced(P("© 2025 Rens' Blog. All rights reserved.", cls="text-xs text-slate-500"), DivLAligned(*[A(UkIcon(icon, cls="text-slate-600 hover:text-blue-600"), href=url, target="_blank") for icon, url in social_links], cls="gap-3")), cls="py-3 mt-6 border-t border-slate-200")
 
 def format_pretty_date(date_str):
     try: return datetime.strptime(date_str, "%Y-%m-%d").strftime("%B %d, %Y")
