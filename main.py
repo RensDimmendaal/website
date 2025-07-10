@@ -47,10 +47,8 @@ def load_post(fp:Path):
     else: raise NotImplementedError("No metadata found in post")
     return post
 
-@cache
-def all_posts(): return [load_post(fp) for fp in Path("./posts/").glob("*.md")]
-
-def published_posts(): return [p for p in all_posts() if not p.get('draft', False)]
+ALL_POSTS = [load_post(fp) for fp in Path("./posts/").glob("*.md")]
+PUBLISHED_POSTS = [p for p in ALL_POSTS if not p.get('draft', False)]
 
 def load_pypost(fp:Path):
     try:
@@ -66,13 +64,12 @@ def load_pypost(fp:Path):
         print(f"Error loading pypost {fp.stem}: {e}")
     return None
 
-@cache
-def all_pyposts(): return [p for p in [load_pypost(fp) for fp in Path("./pyposts/").glob("*.py") if fp.stem != "__init__"] if p]
+ALL_PYPOSTS = [p for p in [load_pypost(fp) for fp in Path("./pyposts/").glob("*.py") if fp.stem != "__init__"] if p]
+PUBLISHED_PYPOSTS = [p for p in ALL_PYPOSTS if not p.get('draft', False)]
+ALL_PUBLISHED_POSTS = sorted(PUBLISHED_POSTS + PUBLISHED_PYPOSTS, key=lambda p: p.get('date', ''), reverse=True)
 
-def published_pyposts(): return [p for p in all_pyposts() if not p.get('draft', False)]
-
 @cache
-def top_tags(n=5): return Counter(tag for p in published_posts() for tag in p.get('tags', [])).most_common(n)
+def top_tags(n=5): return Counter(tag for p in PUBLISHED_POSTS for tag in p.get('tags', [])).most_common(n)
 
 def create_search_index():
     schema_builder = tantivy.SchemaBuilder()
@@ -83,10 +80,12 @@ def create_search_index():
     schema = schema_builder.build()
     index = tantivy.Index(schema)
     writer = index.writer()
-    for post in published_posts():
+    for post in ALL_PUBLISHED_POSTS:
+        # Use content for markdown posts, preview_content for pyposts
+        body_content = post.get('content', post.get('preview_content', ''))
         writer.add_document(tantivy.Document(
             title=[post['title']],
-            body=[post['content']],
+            body=[body_content],
             tags=[' '.join(post.get('tags', []))],
             fname=[post['fname']]
         ))
@@ -156,7 +155,7 @@ def create_centered_heading(title:str):
 def posts(fname:str):
     """Display an individual blog post from a markdown file."""
 
-    if p:=first(p for p in all_posts() if p['fname'] == fname): pass
+    if p:=first(p for p in ALL_POSTS if p['fname'] == fname): pass
     else: return Container(
             create_site_header(),
             H1("Post Not Found", cls="text-2xl font-bold text-red-600 my-8"),
@@ -188,7 +187,7 @@ def index():
 @rt("/posts-page/{page}")
 def posts_page(page:int):
     posts_per_page = 5
-    all_posts_list = sorted(published_posts() + published_pyposts(), key=lambda p: p.get('date', ''), reverse=True)
+    all_posts_list = ALL_PUBLISHED_POSTS
     start_idx = page * posts_per_page
     end_idx = start_idx + posts_per_page
     page_posts = all_posts_list[start_idx:end_idx]
@@ -220,7 +219,7 @@ def search(q:str=""):
     searcher = search_index.searcher()
     query = search_index.parse_query(q, ["title", "body", "tags"])
     results = searcher.search(query, 20)
-    matching_posts = [first(p for p in published_posts() if p['fname'] == searcher.doc(hit[1])['fname'][0]) for hit in results.hits]
+    matching_posts = [first(p for p in ALL_PUBLISHED_POSTS if p['fname'] == searcher.doc(hit[1])['fname'][0]) for hit in results.hits]
     posts_by_date = {}
     for post in matching_posts:
         date = post.get('date')
@@ -246,7 +245,7 @@ def tags(tag:str):
     """Display all posts with a specific tag."""
     # Group posts by date
     posts_by_date = {}
-    for post in published_posts() + published_pyposts():
+    for post in ALL_PUBLISHED_POSTS:
         if tag in post.get('tags', []):
             date = post.get('date')
             if date not in posts_by_date:
