@@ -83,3 +83,19 @@ def create_date_divider(date):
 
 def Tags(tags):
     return DivLAligned(*[Label(A(tag, href=f"/tags/{tag}", cls="text-slate-600 hover:text-blue-600")) for tag in tags], cls="gap-1 mt-1")
+
+def create_pypost_layout(metadata, *content):
+    """Create standard pypost layout with header, title, date, content, tags, and footer"""
+    return Container(
+        create_site_header(),
+        DivFullySpaced(
+            A(DivLAligned(UkIcon("arrow-left", cls="text-blue-600 h-4 w-4 mr-2"), Span("Back to posts", cls="text-blue-600")), href="/", cls="inline-flex items-center text-sm hover:text-blue-800"),
+            cls="mb-3 items-center"
+        ),
+        H1(metadata["title"], cls="text-3xl font-bold text-slate-800 mt-3 mb-3"),
+        create_date_divider(metadata["date"]),
+        *content,
+        Tags(metadata["tags"]),
+        create_site_footer(),
+        cls="max-w-4xl mx-auto"
+    )

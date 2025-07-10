@@ -1,6 +1,6 @@
 from fasthtml.common import *
 from monsterui.all import *
-from blog_components import create_site_header, create_site_footer, create_date_divider, Tags, render_md, custom_class_map
+from blog_components import *
 
 # Metadata for this pypost
 metadata = {
@@ -22,14 +22,7 @@ Below you can see the final result, and after that I explain how I built it.
 
 @ar
 def rev_inf_scroll():
-    return Container(
-        create_site_header(),
-        DivFullySpaced(
-            A(DivLAligned(UkIcon("arrow-left", cls="text-blue-600 h-4 w-4 mr-2"), Span("Back to posts", cls="text-blue-600")), href="/", cls="inline-flex items-center text-sm hover:text-blue-800"),
-            cls="mb-3 items-center"
-        ),
-        H1(metadata["title"], cls="text-3xl font-bold text-slate-800 mt-3 mb-3"),
-        create_date_divider(metadata["date"]),
+    return create_pypost_layout(metadata,
         Article(render_md(preview_md, class_map=custom_class_map), cls="pt-1 mb-6"),
         
         H2("Live Demo", cls="text-2xl font-bold text-slate-800 mb-4"),
@@ -118,9 +111,6 @@ def load_logs(page: int, limit: int = 5):
 serve()
 ```
 """, class_map=custom_class_map), cls="pt-6 mb-6"),
-        Tags(metadata["tags"]),
-        create_site_footer(),
-        cls="max-w-4xl mx-auto"
     )
 
 def create_css_demo_lines(reversed_css=False):
