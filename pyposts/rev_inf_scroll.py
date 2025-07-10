@@ -6,7 +6,7 @@ from blog_components import *
 metadata = {
     "title": "Reverse Infinite Scroll in FastHTML",
     "date": "2025-07-08", 
-    "tags": ["demo", "htmx", "fasthtml"],
+    "tags": ["TIL", "demo", "htmx", "fasthtml"],
     "draft": False
 }
 

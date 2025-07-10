@@ -278,7 +278,7 @@ def tags(tag:str):
     """Display all posts with a specific tag."""
     # Group posts by date
     posts_by_date = {}
-    for post in published_posts():
+    for post in published_posts() + published_pyposts():
         if tag in post.get('tags', []):
             date = post.get('date')
             if date not in posts_by_date:
