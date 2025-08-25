@@ -19,8 +19,10 @@ cp blog_components.py plash-dir/
 
 # Set PLASH_APP_ID based on dev flag
 if [ "$1" == "dev" ]; then
+    echo "Deploying to dev environment"
     echo "export PLASH_APP_ID=rens" >> plash-dir/.plash
 else
+    echo "Deploying to production environment"
     echo "export PLASH_APP_ID=rensdimmendaal.com" >> plash-dir/.plash
 fi
 
